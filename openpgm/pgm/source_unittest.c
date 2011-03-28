@@ -123,6 +123,8 @@ generate_sock (void)
 	sock->spm_heartbeat_interval = g_malloc0 (sizeof(guint) * (2+2));
 	sock->spm_heartbeat_interval[0] = pgm_secs(1);
 	pgm_spinlock_init (&sock->txw_spinlock);
+	pgm_mutex_init (&sock->source_mutex);
+	pgm_mutex_init (&sock->timer_mutex);
 	pgm_rwlock_init (&sock->lock);
 	return sock;
 }
@@ -519,6 +521,13 @@ pgm_pkt_offset (
 	                      + sizeof(struct pgm_opt_header)
 			      + sizeof(struct pgm_opt_fragment) )
 			    : ( sizeof(struct pgm_header) + sizeof(struct pgm_data) );
+}
+
+PGM_GNUC_INTERNAL
+int
+pgm_get_nprocs (void)
+{
+	return 1;
 }
 
 bool
@@ -1260,11 +1269,13 @@ make_master_suite (void)
 int
 main (void)
 {
+	pgm_messages_init();
 	SRunner* sr = srunner_create (make_master_suite ());
 	srunner_add_suite (sr, make_test_suite ());
 	srunner_run_all (sr, CK_ENV);
 	int number_failed = srunner_ntests_failed (sr);
 	srunner_free (sr);
+	pgm_messages_shutdown();
 	return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 

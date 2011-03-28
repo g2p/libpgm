@@ -637,11 +637,11 @@ do_csum_vector (
 			{
 				uint64_t carry = 0;
 				while (count) {
-					__asm volatile ("addq %1, %0\n\t"
-							"adcq %2, %0"
-					     	      : "=r" (acc)
-					      	      : "m" (*(const uint64_t*)buf), "r" (carry), "0" (acc)
-						      : "cc"  );
+					__asm__ volatile ("addq %1, %0\n\t"
+							  "adcq %2, %0"
+					     		: "=r" (acc)
+							: "m" (*(const uint64_t*)buf), "r" (carry), "0" (acc)
+							: "cc"  );
 					buf  = &buf[ 8 ];
 					count--;
 				}
@@ -741,34 +741,34 @@ do_csumcpy_vector (
 				{
 					pgm_prefetch (&srcbuf[ 64 ]);
 					pgm_prefetchw (&dstbuf[ 64 ]);
-					__asm volatile ("movq 0*8(%1), %%r8\n\t"	/* load */
-							"movq 1*8(%1), %%r9\n\t"
-							"movq 2*8(%1), %%r10\n\t"
-							"movq 3*8(%1), %%r11\n\t"
-							"movq 4*8(%1), %%r12\n\t"
-							"movq 5*8(%1), %%r13\n\t"
-							"movq 6*8(%1), %%r14\n\t"
-							"movq 7*8(%1), %%r15\n\t"
-							"adcq %%r8, %0\n\t"		/* checksum */
-							"adcq %%r9, %0\n\t"
-							"adcq %%r10, %0\n\t"
-							"adcq %%r11, %0\n\t"
-							"adcq %%r12, %0\n\t"
-							"adcq %%r13, %0\n\t"
-							"adcq %%r14, %0\n\t"
-							"adcq %%r15, %0\n\t"
-							"adcq %3, %0\n\t"
-							"movq %%r8, 0*8(%2)\n\t"	/* save */
-							"movq %%r9, 1*8(%2)\n\t"
-							"movq %%r10, 2*8(%2)\n\t"
-							"movq %%r11, 3*8(%2)\n\t"
-							"movq %%r12, 4*8(%2)\n\t"
-							"movq %%r13, 5*8(%2)\n\t"
-							"movq %%r14, 6*8(%2)\n\t"
-							"movq %%r15, 7*8(%2)"
-						      : "=r" (acc)
-						      : "r" (srcbuf), "r" (dstbuf), "r" (carry), "0" (acc)
-						      : "cc", "memory", "r8", "r9", "r10", "r11", "r12", "r13", "r14", "r15"  );
+					__asm__ volatile ("movq 0*8(%1), %%r8\n\t"	/* load */
+							  "movq 1*8(%1), %%r9\n\t"
+							  "movq 2*8(%1), %%r10\n\t"
+							  "movq 3*8(%1), %%r11\n\t"
+							  "movq 4*8(%1), %%r12\n\t"
+							  "movq 5*8(%1), %%r13\n\t"
+							  "movq 6*8(%1), %%r14\n\t"
+							  "movq 7*8(%1), %%r15\n\t"
+							  "adcq %%r8, %0\n\t"		/* checksum */
+							  "adcq %%r9, %0\n\t"
+							  "adcq %%r10, %0\n\t"
+							  "adcq %%r11, %0\n\t"
+							  "adcq %%r12, %0\n\t"
+							  "adcq %%r13, %0\n\t"
+							  "adcq %%r14, %0\n\t"
+							  "adcq %%r15, %0\n\t"
+							  "adcq %3, %0\n\t"
+							  "movq %%r8, 0*8(%2)\n\t"	/* save */
+							  "movq %%r9, 1*8(%2)\n\t"
+							  "movq %%r10, 2*8(%2)\n\t"
+							  "movq %%r11, 3*8(%2)\n\t"
+							  "movq %%r12, 4*8(%2)\n\t"
+							  "movq %%r13, 5*8(%2)\n\t"
+							  "movq %%r14, 6*8(%2)\n\t"
+							  "movq %%r15, 7*8(%2)"
+							: "=r" (acc)
+							: "r" (srcbuf), "r" (dstbuf), "r" (carry), "0" (acc)
+							: "cc", "memory", "r8", "r9", "r10", "r11", "r12", "r13", "r14", "r15"  );
 					srcbuf = &srcbuf[ 64 ];
 					dstbuf = &dstbuf[ 64 ];
 					count64--;
@@ -776,11 +776,11 @@ do_csumcpy_vector (
 				count %= 8;
 /* last 56 bytes */
 				while (count) {
-					__asm volatile ("addq %1, %0\n\t"
-							"adcq %2, %0"
-						      : "=r" (acc)
-						      : "m" (*(const uint64_t*restrict)srcbuf), "r" (carry), "0" (acc)
-						      : "cc"  );
+					__asm__ volatile ("addq %1, %0\n\t"
+							  "adcq %2, %0"
+							: "=r" (acc)
+							: "m" (*(const uint64_t*restrict)srcbuf), "r" (carry), "0" (acc)
+							: "cc"  );
 					srcbuf  = &srcbuf[ 8 ];
 					count--;
 				}
@@ -874,7 +874,9 @@ pgm_compat_csum_partial (
 	return csum;
 }
 
-/* Calculate & copy a partial PGM checksum
+/* Calculate & copy a partial PGM checksum.
+ *
+ * Optimum performance when src & dst are on same alignment.
  */
 
 uint32_t
@@ -889,19 +891,25 @@ pgm_compat_csum_partial_copy (
 	pgm_assert (NULL != src);
 	pgm_assert (NULL != dst);
 
-#if defined(CONFIG_8BIT_CHECKSUM)
-	return do_csumcpy_8bit (src, dst, len, csum);
-#elif defined(CONFIG_16BIT_CHECKSUM)
-	return do_csumcpy_16bit (src, dst, len, csum);
-#elif defined(CONFIG_32BIT_CHECKSUM)
-	return do_csumcpy_32bit (src, dst, len, csum);
-#elif defined(CONFIG_64BIT_CHECKSUM)
-	return do_csumcpy_64bit (src, dst, len, csum);
-#elif defined(CONFIG_VECTOR_CHECKSUM)
-	return do_csumcpy_vector (src, dst, len, csum);
-#else
+#if defined( __sparc__ ) || defined( __sparc ) || defined( __sparcv9 )
+/* SPARC will not handle destination & source addresses with different alignment */
 	memcpy (dst, src, len);
 	return pgm_csum_partial (dst, len, csum);
+#else
+#	if   defined(CONFIG_8BIT_CHECKSUM)
+	return do_csumcpy_8bit (src, dst, len, csum);
+#	elif defined(CONFIG_16BIT_CHECKSUM)
+	return do_csumcpy_16bit (src, dst, len, csum);
+#	elif defined(CONFIG_32BIT_CHECKSUM)
+	return do_csumcpy_32bit (src, dst, len, csum);
+#	elif defined(CONFIG_64BIT_CHECKSUM)
+	return do_csumcpy_64bit (src, dst, len, csum);
+#	elif defined(CONFIG_VECTOR_CHECKSUM)
+	return do_csumcpy_vector (src, dst, len, csum);
+#	else
+	memcpy (dst, src, len);
+	return pgm_csum_partial (dst, len, csum);
+#	endif
 #endif
 }
 

@@ -215,6 +215,9 @@ pgm_http_init (
 			     pgm_gai_strerror_s (errbuf, sizeof (errbuf), e));
 		goto err_cleanup;
 	}
+/* NB: getaddrinfo may return multiple addresses, one per interface & family, only the first
+ * return result is used.  The sorting order of the list defined by RFC 3484 and /etc/gai.conf
+ */
 	e = getnameinfo (res->ai_addr, res->ai_addrlen,
 		         http_address, sizeof(http_address),
 			 NULL, 0,
@@ -392,6 +395,7 @@ pgm_http_shutdown (void)
 #ifndef _WIN32
 	pthread_join (http_thread, NULL);
 #else
+	WaitForSingleObject (http_thread, INFINITE);
 	CloseHandle (http_thread);
 #endif
 	if (INVALID_SOCKET != http_sock) {

@@ -1,22 +1,22 @@
 # -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
+#  Ubuntu 10 : v2.65
+#   OSX 10.6 : v2.61
+# Solaris 10 : v2.59
 AC_PREREQ([2.61])
-AC_INIT([OpenPGM], [5.1], [openpgm-dev@googlegroups.com], [openpgm], [http://code.google.com/p/openpgm/])
+AC_INIT([OpenPGM], [m4_esyscmd([perl version.pl %major.%minor])], [openpgm-dev@googlegroups.com], [openpgm], [http://code.google.com/p/openpgm/])
 AC_CONFIG_SRCDIR([reed_solomon.c])
+AC_CONFIG_MACRO_DIR([m4])
+
+#  Ubuntu 10 : v1.11
+#   OSX 10.6 : v1.10
+# Solaris 10 : v1.8
 AM_INIT_AUTOMAKE([1.10 no-define foreign])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
-# Apply system specific rules.
-AC_CANONICAL_HOST
-CFLAGS="$CFLAGS -D_REENTRANT"
-case "$host_os" in
-linux*)
-	CFLAGS="$CFLAGS -D_XOPEN_SOURCE=600 -D_BSD_SOURCE"
-	;;
-*)
-	;;
-esac
+AC_SUBST([RELEASE_INFO], [m4_esyscmd([perl version.pl %major.%minor])])
+AC_SUBST([VERSION_INFO], [m4_esyscmd([perl version.pl 0:%micro])])
 
 # Checks for programs.
 AC_PROG_CC
@@ -25,13 +25,30 @@ AC_PROG_LIBTOOL
 AC_PATH_PROG(PERL, perl)
 AC_PATH_PROG(PYTHON, python)
 
+# nb: earliest verifiable version is 2.2.
+m4_ifdef([LT_PREREQ], [LT_PREREQ([2.2])])
+m4_ifdef([LT_INIT], [LT_INIT])
+AC_SUBST([LIBTOOL_DEPS])
 AC_SUBST(PERL)
 AC_SUBST(PYTHON)
 
-LT_PREREQ([2.2])
-LT_INIT
-
-AC_SUBST([LIBTOOL_DEPS])
+# Apply system specific rules.
+AC_CANONICAL_HOST
+CFLAGS="$CFLAGS -D_REENTRANT"
+case "$host_os" in
+linux*)
+	CFLAGS="$CFLAGS -D_XOPEN_SOURCE=600 -D_BSD_SOURCE"
+	;;
+solaris*)
+	CFLAGS="$CFLAGS -D_XOPEN_SOURCE=600 -D__EXTENSIONS__"
+	AC_SEARCH_LIBS([socket], [socket])
+	AC_SEARCH_LIBS([gethostname], [nsl])
+	AC_SEARCH_LIBS([inet_aton], [resolv])
+	AC_SEARCH_LIBS([kstat_open], [kstat])
+	;;
+*)
+	;;
+esac
 
 # Checks for libraries.
 AC_SEARCH_LIBS([sqrt], [m])
@@ -60,6 +77,7 @@ AC_TYPE_UINT64_T
 AC_TYPE_UINT8_T
 
 # Checks for library functions.
+# TODO: gettext() fails out-of-the-box from AutoConf.
 #AM_GNU_GETTEXT
 AC_FUNC_MALLOC
 AC_FUNC_MMAP
@@ -77,7 +95,7 @@ AC_COMPILE_IFELSE(
 	[AC_MSG_RESULT([no])])
 # NSS protocol lookup
 AC_CHECK_FUNC([getprotobyname_r])
-if test "$ac_cv_func_getprotobyname_r" == yes; then
+if test "x$ac_cv_func_getprotobyname_r" = "xyes"; then
 AC_MSG_CHECKING([for 4- or 5-param getprotobyname_r])
 AC_COMPILE_IFELSE(
 	[AC_LANG_PROGRAM([[#include <netdb.h>]],
@@ -115,6 +133,14 @@ AC_COMPILE_IFELSE(
 	[AC_MSG_RESULT([yes])
 		CFLAGS="$CFLAGS -DCONFIG_HAVE_ALLOCA_H"],
 	[AC_MSG_RESULT([no])])
+# eventfd API
+AC_MSG_CHECKING([for eventfd])
+AC_COMPILE_IFELSE(
+	[AC_LANG_PROGRAM([[#include <sys/eventfd.h>]],
+                [[eventfd (0, 0);]])],
+        [AC_MSG_RESULT([yes])
+                CFLAGS="$CFLAGS -DCONFIG_HAVE_EVENTFD"],
+        [AC_MSG_RESULT([no])])
 # useful /proc system
 AC_CHECK_FILE([/proc/cpuinfo],
 		CFLAGS="$CFLAGS -DCONFIG_HAVE_PROC",)
@@ -189,13 +215,23 @@ AC_COMPILE_IFELSE(
 AC_CHECK_FUNC([vasprintf],
 		CFLAGS="$CFLAGS -DCONFIG_HAVE_VASPRINTF",)
 # symbol linking scope
+# nb: sun x86 ld doesn't support DSO visibility but the compiler raises
+# warnings and these are easier to detect in autoconf.
+save_CFLAGS="$CFLAGS"
+CFLAGS="$CFLAGS -Werror"
 AC_MSG_CHECKING([for hidden visibility attribute])
 AC_COMPILE_IFELSE(
-	[AC_LANG_PROGRAM([[__attribute__((visibility("hidden"))) void moo (void) {};]],
+	[AC_LANG_PROGRAM([[#ifdef __SUNPRO_C
+__hidden
+#else
+__attribute__((visibility("hidden")))
+#endif
+void moo (void) {};]],
 		[[moo();]])],
 	[AC_MSG_RESULT([yes])
-		CFLAGS="$CFLAGS -DCONFIG_HAVE_DSO_VISIBILITY"],
-	[AC_MSG_RESULT([no])])
+		CFLAGS="$save_CFLAGS -DCONFIG_HAVE_DSO_VISIBILITY"],
+	[AC_MSG_RESULT([no])
+		CFLAGS="$save_CFLAGS"])
 
 # socket binding
 CFLAGS="$CFLAGS -DCONFIG_BIND_INADDR_ANY"
@@ -213,6 +249,56 @@ case "$host_os" in
 	AC_MSG_RESULT([no])
 	;;
 esac
+# extended assembler on SPARC
+case "$host" in
+sparc-sun-solaris*)
+	AC_MSG_CHECKING([for SPARC extended assembler])
+	AC_COMPILE_IFELSE(
+		[AC_LANG_PROGRAM([[#include <stdint.h>
+uint32_t add32_with_carry (uint32_t a, uint32_t b) {
+        __asm__ ( "addcc %2, %0, %0\n\taddx %0, %%g0, %0" : "=r" (a) : "0" (a), "r" (b) : "cc");
+        return a;
+}]],
+			[[uint32_t c = add32_with_carry (1, 2);]])],
+		[AC_MSG_RESULT([yes])],
+		[AC_MSG_RESULT([optimization required])
+			CFLAGS="$CFLAGS -xO1"])
+	;;
+*)
+	;;
+esac
+# ticket spinlock friendly: unaligned pointers & atomic ops (excl. Sun Pro)
+AC_MSG_CHECKING([for unaligned pointers])
+AC_RUN_IFELSE(
+	[AC_LANG_PROGRAM([[char* nezumi = "mouse";]],
+		[[short x = *(short*)(nezumi + 2)]])],
+	[AC_MSG_RESULT([yes])
+		pgm_unaligned_pointers=yes],
+	[AC_MSG_RESULT([no])
+		pgm_unaligned_pointers=no])
+AC_MSG_CHECKING([for intrinsic atomic ops])
+# AC_PREPROC_IFELSE not always portable
+AC_COMPILE_IFELSE(
+	[AC_LANG_SOURCE([[#if defined( __GNUC__ ) && ( defined( __i386__ ) || defined( __x86_64__ ) )
+/* GCC assembler */
+#elif defined( __sun )
+/* Solaris intrinsic */
+#elif defined( __APPLE__ )
+/* Darwin intrinsic */
+#elif defined( __GNUC__ ) && ( __GNUC__ * 100 + __GNUC_MINOR__ >= 401 )
+/* GCC 4.0.1 intrinsic */
+#elif defined( _WIN32 )
+/* Windows intrinsic */
+#else
+#	error "Unsupported atomic ops."
+#endif]])],
+	[AC_MSG_RESULT([yes])
+		if test "$pgm_unaligned_pointers" = yes; then
+			CFLAGS="$CFLAGS -DCONFIG_TICKET_SPINLOCK -DCONFIG_DUMB_RWSPINLOCK"
+		else
+			CFLAGS="$CFLAGS -DCONFIG_TICKET_SPINLOCK"
+		fi],
+	[AC_MSG_RESULT([no])])
 
-AC_CONFIG_FILES([Makefile openpgm-5.1.pc])
+AC_CONFIG_FILES([Makefile "openpgm-${RELEASE_INFO}.pc"])
 AC_OUTPUT

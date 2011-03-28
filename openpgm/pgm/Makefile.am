@@ -1,8 +1,10 @@
 # -*- Makefile -*-
 
-lib_LTLIBRARIES = libpgm.la
+ACLOCAL_AMFLAGS = -I m4
 
-libpgm_la_SOURCES = \
+noinst_LTLIBRARIES = libpgm_noinst.la
+
+libpgm_noinst_la_SOURCES = \
 	thread.c \
 	mem.c \
 	string.c \
@@ -19,6 +21,7 @@ libpgm_la_SOURCES = \
 	time.c \
 	if.c \
 	getifaddrs.c \
+	get_nprocs.c \
 	getnetbyname.c \
 	getnodeaddr.c \
 	getprotobyname.c \
@@ -48,7 +51,7 @@ libpgm_la_SOURCES = \
 	histogram.c \
 	version.c
 
-libincludedir = $(includedir)/pgm-5.1/pgm
+libincludedir = $(includedir)/pgm-@RELEASE_INFO@/pgm
 libinclude_HEADERS = \
 	include/pgm/atomic.h \
 	include/pgm/engine.h \
@@ -73,22 +76,27 @@ libinclude_HEADERS = \
 	include/pgm/wininttypes.h \
 	include/pgm/zinttypes.h
 
+# nb: Solaris make does not understand $<
 version.c: version_generator.py
-	$(AM_V_GEN)$(PYTHON) $< > $@
+	$(AM_V_GEN)$(PYTHON) version_generator.py > $@
 
 galois_tables.c: galois_generator.pl
-	$(AM_V_GEN)$(PERL) $< > $@
+	$(AM_V_GEN)$(PERL) galois_generator.pl > $@
 
-libpgm_la_CFLAGS = \
+libpgm_noinst_la_CFLAGS = \
 	-I$(top_srcdir)/include \
 	-DCONFIG_16BIT_CHECKSUM \
 	-DCONFIG_GALOIS_MUL_LUT \
 	-DGETTEXT_PACKAGE='"pgm"'
 
-libpgm_la_LDFLAGS = -release 5.1 -version-info 0:102
+lib_LTLIBRARIES   = libpgm.la
+libpgm_la_SOURCES =
+libpgm_la_CFLAGS  = $(libpgm_noinst_la_CFLAGS)
+libpgm_la_LDFLAGS = -release @RELEASE_INFO@ -version-info @VERSION_INFO@
+libpgm_la_LIBADD  = libpgm_noinst.la
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = openpgm-5.1.pc
+pkgconfig_DATA = openpgm-@RELEASE_INFO@.pc
 
 LIBTOOL_DEPS = @LIBTOOL_DEPS@
 libtool: $(LIBTOOL_DEPS)
