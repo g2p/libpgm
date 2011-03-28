@@ -68,10 +68,8 @@ unsigned mock_pgm_if_nametoindex (const sa_family_t, const char*);
 #define pgm_freeifaddrs		mock_pgm_freeifaddrs
 #define pgm_if_nametoindex	mock_pgm_if_nametoindex
 
-
 #define INDEXTOADDR_DEBUG
 #include "indextoaddr.c"
-
 
 static
 gpointer
@@ -173,6 +171,13 @@ pgm_transport_pkt_offset2 (
         )
 {
         return 0;
+}
+
+PGM_GNUC_INTERNAL
+int
+pgm_get_nprocs (void)
+{
+	return 1;
 }
 
 bool
@@ -305,11 +310,13 @@ main (void)
 	g_assert (0 == WSAStartup (wVersionRequested, &wsaData));
 	g_assert (LOBYTE (wsaData.wVersion) == 2 && HIBYTE (wsaData.wVersion) == 2);
 #endif
+	pgm_messages_init();
 	SRunner* sr = srunner_create (make_master_suite ());
 	srunner_add_suite (sr, make_test_suite ());
 	srunner_run_all (sr, CK_ENV);
 	int number_failed = srunner_ntests_failed (sr);
 	srunner_free (sr);
+	pgm_messages_shutdown();
 #ifdef _WIN32
 	WSACleanup();
 #endif

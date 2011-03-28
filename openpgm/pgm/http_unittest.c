@@ -28,6 +28,10 @@
 
 #include "impl/framework.h"
 
+#ifdef _WIN32
+#	define PGM_CHECK_NOFORK		1
+#endif
+
 
 /* mock state */
 static pgm_rwlock_t	mock_pgm_sock_list_lock;
@@ -38,10 +42,15 @@ static pgm_slist_t*	mock_pgm_sock_list;
 #define pgm_sock_list_lock	mock_pgm_sock_list_lock
 #define pgm_sock_list		mock_pgm_sock_list
 
-
 #define HTTP_DEBUG
 #include "http.c"
 
+PGM_GNUC_INTERNAL
+int
+pgm_get_nprocs (void)
+{
+	return 1;
+}
 
 /* target:
  *	bool
@@ -56,6 +65,11 @@ START_TEST (test_init_pass_001)
 	pgm_error_t* err = NULL;
 	fail_unless (TRUE == pgm_http_init (8080, &err), "init failed");
 	fail_unless (NULL == err, "init failed");
+#ifdef PGM_CHECK_NOFORK
+	fail_unless (TRUE == pgm_http_shutdown (), "shutdown failed");
+	fail_unless (FALSE == pgm_http_shutdown (), "shutdown failed");
+#endif
+	
 }
 END_TEST
 
@@ -65,6 +79,11 @@ START_TEST (test_init_fail_001)
 	pgm_error_t* err = NULL;
 	fail_unless (TRUE == pgm_http_init (8080, &err), "init failed");
 	fail_unless (TRUE == pgm_http_init (8080, &err), "init failed");
+#ifdef PGM_CHECK_NOFORK
+	fail_unless (TRUE == pgm_http_shutdown (), "shutdown failed");
+	fail_unless (TRUE == pgm_http_shutdown (), "shutdown failed");
+	fail_unless (FALSE == pgm_http_shutdown (), "shutdown failed");
+#endif
 }
 END_TEST
 
@@ -79,6 +98,7 @@ START_TEST (test_shutdown_pass_001)
 	fail_unless (TRUE == pgm_http_init (8080, &err), "init failed");
 	fail_unless (NULL == err, "init failed");
 	fail_unless (TRUE == pgm_http_shutdown (), "shutdown failed");
+	fail_unless (FALSE == pgm_http_shutdown (), "shutdown failed");
 }
 END_TEST
 
@@ -93,6 +113,7 @@ START_TEST (test_shutdown_pass_002)
 	fail_unless (TRUE == pgm_http_init (8080, &err), "init failed");
 	fail_unless (NULL == err, "init failed");
 	fail_unless (TRUE == pgm_http_shutdown (), "shutdown failed");
+	fail_unless (FALSE == pgm_http_shutdown (), "shutdown failed");
 }
 END_TEST
 
@@ -137,11 +158,22 @@ make_master_suite (void)
 int
 main (void)
 {
+#ifdef _WIN32
+	WORD wVersionRequested = MAKEWORD (2, 2);
+	WSADATA wsaData;
+	g_assert (0 == WSAStartup (wVersionRequested, &wsaData));
+	g_assert (LOBYTE (wsaData.wVersion) == 2 && HIBYTE (wsaData.wVersion) == 2);
+#endif
+	pgm_messages_init();
 	SRunner* sr = srunner_create (make_master_suite ());
 	srunner_add_suite (sr, make_test_suite ());
 	srunner_run_all (sr, CK_ENV);
 	int number_failed = srunner_ntests_failed (sr);
 	srunner_free (sr);
+	pgm_messages_shutdown();
+#ifdef _WIN32
+	WSACleanup();
+#endif
 	return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 

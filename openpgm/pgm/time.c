@@ -2,7 +2,9 @@
  *
  * high resolution timers.
  *
- * Copyright (c) 2006-2010 Miru Limited.
+ * NB: RDTSC requires P5 microarchitecture.
+ *
+ * Copyright (c) 2006-2011 Miru Limited.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -154,6 +156,11 @@ static pgm_time_t		pgm_rtc_update (void);
 #ifdef CONFIG_HAVE_TSC
 #	include <stdio.h>
 #	include <string.h>
+#	if defined(__APPLE__) || defined(__FreeBSD__)
+#		include <sys/sysctl.h>
+#	elif defined(__sun)
+#		include <kstat.h>
+#	endif
 #	define TSC_NS_SCALE	10 /* 2^10, carefully chosen */
 #	define TSC_US_SCALE	20
 static uint_fast32_t		tsc_mhz PGM_GNUC_READ_MOSTLY = 0;
@@ -219,6 +226,7 @@ static pgm_time_t		pgm_tsc_update (void);
  * the RTC device, an unstable TSC, or system already initialized.
  */
 
+PGM_GNUC_INTERNAL
 bool
 pgm_time_init (
 #ifndef _WIN32
@@ -334,6 +342,11 @@ pgm_time_init (
 			fclose (fp);
 		}
 #elif defined(_WIN32)
+/* iff reading TSC we could use HKLM/Hardware/Description/System/CentralProcessor/0/~Mhz
+ *
+ * MSDN statement: The frequency cannot change while the system is running.
+ * http://msdn.microsoft.com/en-us/library/ms644905(v=vs.85).aspx
+ */
 		LARGE_INTEGER frequency;
 		if (QueryPerformanceFrequency (&frequency))
 		{
@@ -348,6 +361,36 @@ pgm_time_init (
 				       PGM_ERROR_FAILED,
 				       _("No supported high-resolution performance counter: %s"),
 				       pgm_win_strerror (winstr, sizeof (winstr), save_errno));
+		}
+#elif defined(__APPLE__)
+/* nb: RDTSC is non-functional on Darwin */
+		uint64_t cpufrequency;
+		size_t len;
+		len = sizeof (cpufrequency);
+		if (0 == sysctlbyname ("hw.cpufrequency", &cpufrequency, &len, NULL, 0)) {
+			tsc_mhz = (uint_fast32_t)(cpufrequency / 1000);
+		}
+#elif defined(__FreeBSD__)
+		unsigned long clockrate;
+		size_t len;
+		len = sizeof (clockrate);
+		if (0 == sysctlbyname ("hw.clockrate", &clockrate, &len, NULL, 0)) {
+			tsc_mhz = (uint_fast32_t)(clockrate * 1000);
+		}
+#elif defined(KSTAT_DATA_INT32)
+/* ref: http://developers.sun.com/solaris/articles/kstatc.html */
+		kstat_ctl_t* kc;
+		kstat_t* ksp;
+		kstat_named_t* kdata;
+		if (NULL != (kc = kstat_open()) &&
+			NULL != (ksp = kstat_lookup (kc, "cpu_info", -1, NULL)) &&
+			KSTAT_TYPE_NAMED == ksp->ks_type &&
+			-1 != kstat_read (kc, ksp, NULL) &&
+			NULL != (kdata = kstat_data_lookup (ksp, "clock_MHz")) &&
+			KSTAT_DATA_INT32 == kdata->data_type)
+		{
+			tsc_mhz = (uint_fast32_t)(kdata->value.i32 * 1000);
+			kstat_close (kc);
 		}
 #endif /* !_WIN32 */
 
@@ -371,6 +414,7 @@ pgm_time_init (
 			}
 		}
 #endif
+		pgm_minor (_("TSC frequency set to %u MHz"), (unsigned)(tsc_mhz / 1000));
 		set_tsc_mul (tsc_mhz);
 	}
 #endif /* CONFIG_HAVE_TSC */
@@ -441,6 +485,7 @@ err_cleanup:
 /* returns TRUE if shutdown succeeded, returns FALSE on error.
  */
 
+PGM_GNUC_INTERNAL
 bool
 pgm_time_shutdown (void)
 {

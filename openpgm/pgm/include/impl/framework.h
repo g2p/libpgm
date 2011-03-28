@@ -43,10 +43,12 @@
 #include <pgm/types.h>
 
 #include <impl/checksum.h>
+#include <impl/errno.h>
 #include <impl/features.h>
 #include <impl/fixed.h>
 #include <impl/galois.h>
 #include <impl/getifaddrs.h>
+#include <impl/get_nprocs.h>
 #include <impl/getnetbyname.h>
 #include <impl/getnodeaddr.h>
 #include <impl/getprotobyname.h>

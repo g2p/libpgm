@@ -79,6 +79,13 @@ pgm_pkt_offset (
 }
 
 PGM_GNUC_INTERNAL
+int
+pgm_get_nprocs (void)
+{
+	return 1;
+}
+
+PGM_GNUC_INTERNAL
 bool
 mock_pgm_time_init (
 	pgm_error_t**	error
@@ -123,6 +130,7 @@ START_TEST (test_init_pass_001)
 /* clean up state */
 	fail_unless (TRUE == pgm_shutdown (), "shutdown failed");
 	fail_unless (TRUE == pgm_shutdown (), "shutdown failed");
+	fail_unless (FALSE == pgm_shutdown (), "shutdown failed");
 #endif
 }
 END_TEST
@@ -139,7 +147,9 @@ START_TEST (test_init_pass_003)
 /* clean up state */
 	fail_unless (TRUE == pgm_shutdown (), "shutdown failed");
 	fail_unless (TRUE == pgm_shutdown (), "shutdown failed");
+	fail_unless (FALSE == pgm_shutdown (), "shutdown failed");
 	fail_unless (TRUE == pgm_time_shutdown (), "time-shutdown failed");
+	fail_unless (FALSE == pgm_time_shutdown (), "time-shutdown failed");
 #endif
 }
 END_TEST
@@ -153,6 +163,10 @@ START_TEST (test_shutdown_pass_001)
 {
 	fail_unless (TRUE == pgm_init (NULL), "init failed");
 	fail_unless (TRUE == pgm_shutdown (), "shutdown failed");
+
+#ifdef PGM_CHECK_NOFORK
+	fail_unless (FALSE == pgm_shutdown (), "shutdown failed");
+#endif
 }
 END_TEST
 

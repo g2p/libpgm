@@ -57,6 +57,13 @@ pgm_transport_pkt_offset2 (
         return 0;
 }
 
+PGM_GNUC_INTERNAL
+int
+pgm_get_nprocs (void)
+{
+	return 1;
+}
+
 static
 pgm_time_t
 _mock_pgm_time_update_now (void)

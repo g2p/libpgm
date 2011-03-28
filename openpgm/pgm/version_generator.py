@@ -6,14 +6,14 @@ import time
 
 build_date = time.strftime ("%Y-%m-%d")
 build_time = time.strftime ("%H:%M:%S")
-build_rev = os.popen('svnversion -n .').read();
+build_rev = filter (str.isdigit, "$Revision: 1348 $")
 
 print """
 /* vim:ts=8:sts=8:sw=4:noai:noexpandtab
  * 
  * OpenPGM version.
  *
- * Copyright (c) 2006-2010 Miru Limited.
+ * Copyright (c) 2006-2011 Miru Limited.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -38,7 +38,7 @@ print """
 
 const unsigned pgm_major_version = 5;
 const unsigned pgm_minor_version = 1;
-const unsigned pgm_micro_version = 102;
+const unsigned pgm_micro_version = 114;
 const char* pgm_build_date = "%s";
 const char* pgm_build_time = "%s";
 const char* pgm_build_system = "%s";

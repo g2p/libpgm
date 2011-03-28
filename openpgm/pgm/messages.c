@@ -2,7 +2,7 @@
  *
  * basic message reporting.
  *
- * Copyright (c) 2010 Miru Limited.
+ * Copyright (c) 2010-2011 Miru Limited.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -136,14 +136,21 @@ pgm_log_set_handler (
 	)
 {
 	pgm_log_func_t previous_handler;
-	pgm_mutex_lock (&messages_mutex);
+	const uint32_t count = pgm_atomic_read32 (&messages_ref_count);
+
+/* cannot use mutexes for initialising log handler before pgm_init() for
+ * locking systems that do not accept static initialization, e.g. Windows
+ * critical sections.
+ */
+	if (count > 0) pgm_mutex_lock (&messages_mutex);
 	previous_handler	= log_handler;
 	log_handler		= handler;
 	log_handler_closure	= closure;
-	pgm_mutex_unlock (&messages_mutex);
+	if (count > 0) pgm_mutex_unlock (&messages_mutex);
 	return previous_handler;
 }
 
+PGM_GNUC_INTERNAL
 void
 pgm__log (
 	const int		log_level,
@@ -158,6 +165,7 @@ pgm__log (
 	va_end (args);
 }
 
+PGM_GNUC_INTERNAL
 void
 pgm__logv (
 	const int		log_level,
@@ -174,8 +182,8 @@ pgm__logv (
 		log_handler (log_level, tbuf, log_handler_closure);
 	else {
 /* ignore return value */
-		write (STDOUT_FILENO, tbuf, strlen (tbuf));
-		write (STDOUT_FILENO, "\n", 1);
+		(void) write (STDOUT_FILENO, tbuf, strlen (tbuf));
+		(void) write (STDOUT_FILENO, "\n", 1);
 	}
 		
 	pgm_mutex_unlock (&messages_mutex);

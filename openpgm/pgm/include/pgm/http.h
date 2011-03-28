@@ -25,8 +25,7 @@
 #ifndef __PGM_HTTP_H__
 #define __PGM_HTTP_H__
 
-#include <pgm/types.h>
-#include <pgm/error.h>
+#include <pgm/pgm.h>
 
 PGM_BEGIN_DECLS
 

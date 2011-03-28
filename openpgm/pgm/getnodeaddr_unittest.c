@@ -70,8 +70,6 @@ static char* mock_hostname =	NULL;
 struct pgm_ifaddrs_t;
 struct pgm_error_t;
 
-static bool mock_pgm_getifaddrs (struct pgm_ifaddrs_t**, struct pgm_error_t**);
-static void mock_pgm_freeifaddrs (struct pgm_ifaddrs_t*);
 static int mock_getaddrinfo (const char*, const char*, const struct addrinfo*, struct addrinfo**);
 static void mock_freeaddrinfo (struct addrinfo*);
 static int mock_gethostname (char*, size_t);
@@ -275,7 +273,13 @@ pgm_pkt_offset (
         return 0;
 }
 
-static 
+PGM_GNUC_INTERNAL
+int
+pgm_get_nprocs (void)
+{
+	return 1;
+}
+
 bool
 mock_pgm_getifaddrs (
 	struct pgm_ifaddrs_t**	ifap,
@@ -310,7 +314,6 @@ mock_pgm_getifaddrs (
 	return TRUE;
 }
 
-static
 void
 mock_pgm_freeifaddrs (
 	struct pgm_ifaddrs_t*		ifa
@@ -585,11 +588,13 @@ main (void)
 	g_assert (0 == WSAStartup (wVersionRequested, &wsaData));
 	g_assert (LOBYTE (wsaData.wVersion) == 2 && HIBYTE (wsaData.wVersion) == 2);
 #endif
+	pgm_messages_init();
 	SRunner* sr = srunner_create (make_master_suite ());
 	srunner_add_suite (sr, make_test_suite ());
 	srunner_run_all (sr, CK_ENV);
 	int number_failed = srunner_ntests_failed (sr);
 	srunner_free (sr);
+	pgm_messages_shutdown();
 #ifdef _WIN32
 	WSACleanup();
 #endif

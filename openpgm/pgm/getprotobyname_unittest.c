@@ -47,6 +47,13 @@ mock_teardown (void)
 {
 }
 
+PGM_GNUC_INTERNAL
+int
+pgm_get_nprocs (void)
+{
+	return 1;
+}
+
 /* target:
  *	struct protoent*
  *	pgm_getprotobyname (

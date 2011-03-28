@@ -2,7 +2,7 @@
  *
  * portable function to return the nodes IP address.
  *
- * Copyright (c) 2006-2010 Miru Limited.
+ * Copyright (c) 2006-2011 Miru Limited.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -40,6 +40,7 @@ static const char* pgm_family_string (const sa_family_t);
  * returns TRUE on success, returns FALSE on failure.
  */
 
+PGM_GNUC_INTERNAL
 bool
 pgm_if_getnodeaddr (
 	const sa_family_t	   family,	/* requested address family, AF_INET, AF_INET6, or AF_UNSPEC */
@@ -83,6 +84,9 @@ pgm_if_getnodeaddr (
 
 	int e = getaddrinfo (hostname, NULL, &hints, &res);
 	if (0 == e) {
+/* NB: getaddrinfo may return multiple addresses, one per interface & family, only the first
+ * return result is used.  The sorting order of the list defined by RFC 3484 and /etc/gai.conf
+ */
 		const socklen_t addrlen = (socklen_t)res->ai_addrlen;
 		memcpy (addr, res->ai_addr, addrlen);
 		freeaddrinfo (res);

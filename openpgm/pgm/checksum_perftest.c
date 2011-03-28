@@ -88,6 +88,12 @@ pgm_transport_pkt_offset2 (
 #define CHECKSUM_DEBUG
 #include "checksum.c"
 
+PGM_GNUC_INTERNAL
+int
+pgm_get_nprocs (void)
+{
+	return 1;
+}
 
 static
 void
@@ -102,7 +108,6 @@ mock_teardown (void)
 {
 	g_assert (pgm_time_shutdown ());
 }
-
 
 /* target:
  *	guint16
