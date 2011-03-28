@@ -1,3 +1,9 @@
+libpgm (5.1.114~dfsg-1) unstable; urgency=low
+
+  * Imported Upstream version 5.1.114~dfsg
+
+ -- Gabriel de Perthuis <g2p.code@gmail.com>  Mon, 28 Mar 2011 12:35:51 +0200
+
 libpgm (5.1.102-1) unstable; urgency=low
 
   * Initial release (Closes: #566126)
