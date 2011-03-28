@@ -4,24 +4,6 @@
 %:
 	dh $@ --sourcedirectory=openpgm/pgm
 
-override_dh_auto_clean:
-	cd openpgm/pgm && test -z "libpgm.la" || rm -f libpgm.la
-	cd openpgm/pgm && rm -f "./so_locations"
-	cd openpgm/pgm && rm -rf .libs _libs
-	cd openpgm/pgm && rm -f *.o
-	cd openpgm/pgm && rm -f *.lo
-	cd openpgm/pgm && rm -f *.tab.c
-	cd openpgm/pgm && test -z "openpgm-5.1.pc" || rm -f openpgm-5.1.pc
-	cd openpgm/pgm && rm -f libtool config.lt
-	cd openpgm/pgm && rm -f bootstrap.log
-	cd openpgm/pgm && rm -f config.status config.cache config.log configure.lineno config.status.lineno
-	cd openpgm/pgm && rm -rf autom4te.cache
-	cd openpgm/pgm && rm -rf ./.deps
-	cd openpgm/pgm && rm -f Makefile Makefile.in
-	cd openpgm/pgm && rm -f config.guess config.sub configure depcomp install-sh
-	cd openpgm/pgm && rm -f ltmain.sh missing install-sh aclocal.m4
-	cd openpgm/pgm && rm -f galois_tables.c version.c
-
 override_dh_auto_configure:
 	cd openpgm/pgm && \
 		./bootstrap.sh && \
