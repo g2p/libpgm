@@ -1,0 +1,23 @@
+Source: libpgm
+Priority: optional
+Maintainer: Steven McCoy <steven.mccoy@miru.hk>
+Build-Depends: debhelper (>= 7.0.50~), python, perl
+Standards-Version: 3.9.1
+Section: libs
+Homepage: http://code.google.com/p/openpgm/
+Vcs-Svn: http://openpgm.googlecode.com/svn/trunk/
+Vcs-Browser: http://code.google.com/p/openpgm/source/browse/
+
+Package: libpgm-dev
+Section: libdevel
+Architecture: i386 amd64
+Depends: libpgm-5.1-0 (= ${binary:Version}), ${misc:Depends}
+Description: Development files for the OpenPGM library
+ An implementation of the PGM protocol.
+
+Package: libpgm-5.1-0
+Section: libs
+Architecture: i386 amd64
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: OpenPGM shared library
+ An implementation of the PGM protocol.

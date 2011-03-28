@@ -1,0 +1,5 @@
+libpgm (5.1.102-1) unstable; urgency=low
+
+  * Initial release (Closes: #566126)
+
+ -- Steven McCoy <steven.mccoy@miru.hk>  Wed, 19 Jan 2011 14:17:08 +0800
