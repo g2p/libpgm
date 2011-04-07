@@ -1,0 +1,21 @@
+From: Gabriel de Perthuis <g2p.code+debian@gmail.com>
+Date: Thu, 7 Apr 2011 17:28:08 +0200
+Subject: [PATCH] Move @LIBS@ in the Libs.private section.
+
+---
+ openpgm/pgm/openpgm-5.1.pc.in |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
+
+diff --git a/openpgm/pgm/openpgm-5.1.pc.in b/openpgm/pgm/openpgm-5.1.pc.in
+index 409a123..109b9d5 100644
+--- a/openpgm/pgm/openpgm-5.1.pc.in
++++ b/openpgm/pgm/openpgm-5.1.pc.in
+@@ -6,5 +6,6 @@ includedir=@includedir@
+ Name: OpenPGM
+ Description: PGM Protocol Library.
+ Version: @PACKAGE_VERSION@
+-Libs: -L${libdir} -lpgm @LIBS@
++Libs: -L${libdir} -lpgm
++Libs.private: @LIBS@
+ Cflags: -I${includedir}/pgm-5.1 -I${libdir}/pgm-5.1/include
+-- 
