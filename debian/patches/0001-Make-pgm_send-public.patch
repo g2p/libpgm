@@ -1,0 +1,23 @@
+From: Gabriel de Perthuis <g2p.code+debian@gmail.com>
+Date: Thu, 7 Apr 2011 16:36:52 +0200
+Subject: [PATCH] Make pgm_send public.
+
+pgm_send is documented here:
+https://code.google.com/p/openpgm/wiki/OpenPgm5CReferencePgmSend
+---
+ openpgm/pgm/source.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
+
+diff --git a/openpgm/pgm/source.c b/openpgm/pgm/source.c
+index 715b99a..372782a 100644
+--- a/openpgm/pgm/source.c
++++ b/openpgm/pgm/source.c
+@@ -1785,7 +1785,6 @@ blocked:
+  * packet size exceeds the current rate limit.
+  */
+ 
+-PGM_GNUC_INTERNAL
+ int
+ pgm_send (
+ 	pgm_sock_t* 	 const restrict sock,
+-- 
