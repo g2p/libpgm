@@ -1,7 +1,7 @@
 Source: libpgm
 Priority: optional
 Maintainer: Steven McCoy <steven.mccoy@miru.hk>
-Build-Depends: debhelper (>= 7.0.50~), python, perl
+Build-Depends: debhelper (>= 7.0.50~), python, libtool, automake
 Standards-Version: 3.9.1
 Section: libs
 Homepage: http://code.google.com/p/openpgm/
