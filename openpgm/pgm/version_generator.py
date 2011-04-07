@@ -6,7 +6,7 @@ import time
 
 build_date = time.strftime ("%Y-%m-%d")
 build_time = time.strftime ("%H:%M:%S")
-build_rev = filter (str.isdigit, "$Revision: 1350 $")
+build_rev = filter (str.isdigit, "$Revision: 1359 $")
 
 print """
 /* vim:ts=8:sts=8:sw=4:noai:noexpandtab
@@ -38,7 +38,7 @@ print """
 
 const unsigned pgm_major_version = 5;
 const unsigned pgm_minor_version = 1;
-const unsigned pgm_micro_version = 115;
+const unsigned pgm_micro_version = 116;
 const char* pgm_build_date = "%s";
 const char* pgm_build_time = "%s";
 const char* pgm_build_system = "%s";
