@@ -1,6 +1,6 @@
 Source: libpgm
 Priority: optional
-Maintainer: Steven McCoy <steven.mccoy@miru.hk>
+Maintainer: Gabriel de Perthuis <g2p.code+debian@gmail.com>
 Build-Depends: debhelper (>= 7.0.50~), python, libtool, automake
 Standards-Version: 3.9.1
 Section: libs
