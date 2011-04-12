@@ -1,0 +1,5 @@
+version=3
+# urldecode the ~dfsg
+opts="uversionmangle=s/%7E/~/g" \
+https://code.google.com/p/openpgm/downloads/list?q=Dfsg:free \
+https?://openpgm.googlecode.com/files/libpgm-(.*%7Edfsg).tar.gz
