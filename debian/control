@@ -8,13 +8,27 @@ Homepage: http://code.google.com/p/openpgm/
 Vcs-Git: https://github.com/g2p/libpgm.git
 Vcs-Browser: https://github.com/g2p/libpgm
 
-Package: libpgm-dev
-Section: libdevel
-Depends: libpgm-5.1-0 (= ${binary:Version}), ${misc:Depends}
-Description: Development files for the OpenPGM library
- An implementation of the PGM protocol.
-
 Package: libpgm-5.1-0
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: OpenPGM shared library
  An implementation of the PGM protocol.
+ .
+ This is the runtime package for programs that use the OpenPGM library.
+
+Package: libpgm-dbg
+Section: debug
+Architecture: any
+Depends: libpgm-5.1-0 (= ${binary:Version}), ${misc:Depends}
+Description: OpenPGM debugging symbols
+ An implementation of the PGM protocol.
+ .
+ These are the debugging symbols for the library and its utilities.
+
+Package: libpgm-dev
+Section: libdevel
+Depends: libpgm-5.1-0 (= ${binary:Version}), ${misc:Depends}
+Description: OpenPGM development files
+ An implementation of the PGM protocol.
+ .
+ This is the development package which contains headers and static libraries
+ for the OpenPGM library.

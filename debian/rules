@@ -12,5 +12,11 @@ override_dh_auto_configure:
 override_dh_install:
 	dh_install --fail-missing
 
+override_dh_strip:
+	dh_strip --dbg-package=libpgm-dbg
+
 override_dh_auto_build:
 	cd openpgm/pgm && $(MAKE)
+
+.PHONY: override_dh_auto_configure override_dh_install \
+	override_dh_strip override_dh_auto_build
