@@ -10,14 +10,11 @@ Vcs-Browser: https://github.com/g2p/libpgm
 
 Package: libpgm-dev
 Section: libdevel
-Architecture: i386 amd64
 Depends: libpgm-5.1-0 (= ${binary:Version}), ${misc:Depends}
 Description: Development files for the OpenPGM library
  An implementation of the PGM protocol.
 
 Package: libpgm-5.1-0
-Section: libs
-Architecture: i386 amd64
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: OpenPGM shared library
  An implementation of the PGM protocol.
