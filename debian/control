@@ -9,6 +9,7 @@ Vcs-Git: https://github.com/g2p/libpgm.git
 Vcs-Browser: https://github.com/g2p/libpgm
 
 Package: libpgm-5.1-0
+Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: OpenPGM shared library
  OpenPGM is an open source implementation of the Pragmatic General Multicast
@@ -24,8 +25,9 @@ Description: OpenPGM shared library
  This is the runtime package for programs that use the OpenPGM library.
 
 Package: libpgm-dbg
-Section: debug
 Architecture: any
+Section: debug
+Priority: extra
 Depends: libpgm-5.1-0 (= ${binary:Version}), ${misc:Depends}
 Description: OpenPGM debugging symbols
  OpenPGM is an open source implementation of the Pragmatic General Multicast
@@ -41,6 +43,7 @@ Description: OpenPGM debugging symbols
  These are the debugging symbols for the library and its utilities.
 
 Package: libpgm-dev
+Architecture: any
 Section: libdevel
 Depends: libpgm-5.1-0 (= ${binary:Version}), ${misc:Depends}
 Description: OpenPGM development files
