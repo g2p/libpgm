@@ -3,6 +3,10 @@ Upstream-Name: OpenPGM
 Upstream-Contact: Steven McCoy <steven.mccoy@miru.hk>
 Source: http://code.google.com/p/openpgm/
 
+Files: debian/*
+Copyright: 2006-2011 Miru Limited & Gabriel de Perthuis
+License: LGPL-2.1
+
 Files: *
 Copyright: 2006-2011 Miru Limited.
 License: LGPL-2.1
