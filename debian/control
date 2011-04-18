@@ -10,6 +10,7 @@ Vcs-Browser: https://github.com/g2p/libpgm
 
 Package: libpgm-5.1-0
 Architecture: any
+Section: libs
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: OpenPGM shared library
  OpenPGM is an open source implementation of the Pragmatic General Multicast
