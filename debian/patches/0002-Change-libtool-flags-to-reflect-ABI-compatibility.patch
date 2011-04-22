@@ -1,0 +1,24 @@
+From: Gabriel <g2p.code+debian@gmail.com>
+Date: Fri, 22 Apr 2011 09:34:57 +0200
+Subject: [PATCH] Change libtool flags to reflect ABI compatibility
+
+---
+ openpgm/pgm/configure.ac |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/openpgm/pgm/configure.ac b/openpgm/pgm/configure.ac
+index bed5d8f..c1534ba 100644
+--- a/openpgm/pgm/configure.ac
++++ b/openpgm/pgm/configure.ac
+@@ -15,8 +15,8 @@ AC_CONFIG_MACRO_DIR([m4])
+ AM_INIT_AUTOMAKE([1.10 no-define foreign])
+ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
+ 
+-AC_SUBST([RELEASE_INFO], [m4_esyscmd([perl version.pl %major.%minor])])
+-AC_SUBST([VERSION_INFO], [m4_esyscmd([perl version.pl 0:%micro])])
++AC_SUBST([RELEASE_INFO], [m4_esyscmd([perl version.pl %major])])
++AC_SUBST([VERSION_INFO], [m4_esyscmd([perl version.pl %minor:%micro])])
+ 
+ # Checks for programs.
+ AC_PROG_CC
+-- 
