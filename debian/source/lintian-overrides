@@ -1,0 +1,2 @@
+# ~dfsg is included in the upstream version; we do not need to add it.
+libpgm source: debian-watch-file-should-mangle-version
