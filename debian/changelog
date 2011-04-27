@@ -1,6 +1,7 @@
-libpgm (5.1.116~dfsg-1) experimental; urgency=low
+libpgm (5.1.116~dfsg-1) unstable; urgency=low
 
   * Imported Upstream version 5.1.116~dfsg
+  * Initial release to Debian (Closes: #566126)
 
  -- Gabriel de Perthuis <g2p.code+debian@gmail.com>  Thu, 07 Apr 2011 16:48:52 +0200
 
@@ -18,6 +19,6 @@ libpgm (5.1.114~dfsg-1) unstable; urgency=low
 
 libpgm (5.1.102-1) unstable; urgency=low
 
-  * Initial release (Closes: #566126)
+  * Initial release
 
  -- Steven McCoy <steven.mccoy@miru.hk>  Wed, 19 Jan 2011 14:17:08 +0800
