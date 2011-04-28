@@ -15,7 +15,7 @@ libpgm-5.1.so.0 libpgm-5.1-0 #MINVER#
  pgm_csum_block_add@Base 5.1.116~dfsg
  pgm_csum_fold@Base 5.1.116~dfsg
  pgm_drop_superuser@Base 5.1.116~dfsg
- pgm_epoll_ctl@Base 5.1.116~dfsg
+ (arch=linux-any)pgm_epoll_ctl@Base 5.1.116~dfsg
  pgm_error_free@Base 5.1.116~dfsg
  pgm_error_from_eai_errno@Base 5.1.116~dfsg
  pgm_error_from_errno@Base 5.1.116~dfsg
