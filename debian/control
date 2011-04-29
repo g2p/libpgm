@@ -47,6 +47,7 @@ Package: libpgm-dev
 Architecture: any
 Section: libdevel
 Depends: libpgm-5.1-0 (= ${binary:Version}), ${misc:Depends}
+Conflicts: libnetpbm9-dev
 Description: OpenPGM development files
  OpenPGM is an open source implementation of the Pragmatic General Multicast
  (PGM) specification in RFC 3208 available at www.ietf.org. PGM is a reliable

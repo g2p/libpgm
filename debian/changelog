@@ -1,8 +1,11 @@
 libpgm (5.1.116~dfsg-2) unstable; urgency=low
 
   * Rebuild with an updated symbols file for non-linux kernels.
+  * Conflict libpgm-dev with libnetpbm9-dev. This package has
+    been deprecated since 2003 and a replacement, libnetpbm10-dev,
+    exists (Closes: #624511).
 
- -- Gabriel de Perthuis <g2p.code+debian@gmail.com>  Fri, 29 Apr 2011 05:06:12 +0200
+ -- Gabriel de Perthuis <g2p.code+debian@gmail.com>  Fri, 29 Apr 2011 19:23:03 +0200
 
 libpgm (5.1.116~dfsg-1) unstable; urgency=low
 
