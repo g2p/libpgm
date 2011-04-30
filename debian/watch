@@ -1,5 +1,5 @@
 version=3
-# urldecode the ~dfsg, stay on the ssl site
-opts="uversionmangle=s/%7E/~/g,downloadurlmangle=s/^https?/https/" \
+# remove %7Edfsg and add back ~dfsg, stay on the ssl site
+opts="uversionmangle=s/$/~dfsg/g,dversionmangle=s/~dfsg$//,downloadurlmangle=s/^https?/https/" \
 https://code.google.com/p/openpgm/downloads/list?q=Dfsg:free \
-https?://openpgm.googlecode.com/files/libpgm-(.*%7Edfsg).tar.gz
+https?://openpgm\.googlecode\.com/files/libpgm-(.*)%7Edfsg\.tar.gz
